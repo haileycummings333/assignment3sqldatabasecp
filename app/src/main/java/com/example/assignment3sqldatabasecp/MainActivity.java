@@ -3,6 +3,8 @@ package com.example.assignment3sqldatabasecp;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,11 +13,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.Toast;
+import android.content.ContentValues;
+
 
 public class MainActivity extends AppCompatActivity {
     //variables
@@ -214,13 +216,38 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             }
             // Validate Gender (Radio buttons)
-            int selectedGenderId = gender.getCheckedRadioButtonId();
-            if (selectedGenderId == -1) {
+            int selectedGender = gender.getCheckedRadioButtonId();
+            if (selectedGender == -1) {
                 isValid = false;
             }
             if (isValid) {
-                // All checks passed, display a success Toast
-                Toast.makeText(MainActivity.this, "Information stored in the database.", Toast.LENGTH_SHORT).show();
+                // Insert data into the database via ContentProvider
+                ContentValues values = new ContentValues();
+                values.put("National Number", nationalNumStr);
+                values.put("Name", name);
+                values.put("Species", speciesStr);
+                values.put("Gender", selectedGender); // Assuming you have this value
+                values.put("Height", heightStr);
+                values.put("Weight", weightStr);
+                values.put("Level", selectedLevel); // Assuming you have this value
+                values.put("HP", hpStr);
+                values.put("Attack", attackStr);
+                values.put("Defense", defenseStr);
+
+                // Create the content URI for your ContentProvider
+                Uri uri = Uri.parse("content://com.example.assignment3sqldatabasecp/POKEDB");
+
+                // Use the ContentResolver to insert the data
+                ContentResolver contentResolver = getContentResolver();
+                Uri insertedUri = contentResolver.insert(uri, values);
+
+                if (insertedUri != null) {
+                    // Data inserted successfully
+                    Toast.makeText(MainActivity.this, "Data inserted into the database.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Handle insertion failure
+                    Toast.makeText(MainActivity.this, "Failed to insert data.", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 // Notify the user about errors via Toast
                 Toast.makeText(MainActivity.this, "Please fix the errors in red.", Toast.LENGTH_LONG).show();
