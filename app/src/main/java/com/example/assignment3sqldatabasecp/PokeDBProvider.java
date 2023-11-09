@@ -22,7 +22,7 @@ public class PokeDBProvider extends ContentProvider {
     public static final String COLUMN9_NAME = "Attack";
     public static final String COLUMN10_NAME = "Defense";
     public static final String AUTHORITY = "com.example.assignment3sqldatabasecp";
-    public static final Uri contentURI = Uri.parse("content://" + AUTHORITY + "/" + DBNAME);
+    public static final Uri contentURI = Uri.parse( AUTHORITY + "/" + DBNAME);
     private MainDatabaseHelper SQLHelper;
     private static final String CREATE_DB_QUERY = "CREATE TABLE " + TABLE_NAME + //SQL query
             "(_ID INTEGER PRIMARY KEY," +

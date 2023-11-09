@@ -1,5 +1,7 @@
 package com.example.assignment3sqldatabasecp;
 
+import static com.example.assignment3sqldatabasecp.PokeDBProvider.TABLE_NAME;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 nameET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate Species
+
             String speciesStr = speciesET.getText().toString();
             if (speciesStr.isEmpty()) {
                 speciesET.setTextColor(getResources().getColor(R.color.red));
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 nationalET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate Height
+
             String heightStr = heightET.getText().toString();
             if (heightStr.endsWith("m")) {
                 heightStr = heightStr.substring(0, heightStr.length() - 1);
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 heightET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate Weight
+
             String weightStr = weightET.getText().toString();
             if (weightStr.endsWith("kg")) {
                 weightStr = weightStr.substring(0, weightStr.length() - 2);
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 weightET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate HP
+
             String hpStr = hpET.getText().toString();
             boolean isHpValid = false;
             try {
@@ -173,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 hpET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate Attack
+
             String attackStr = attackET.getText().toString();
             boolean isAttackValid = false;
             try {
@@ -191,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 attackET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate Defense
+
             String defenseStr = defenseET.getText().toString();
             boolean isDefenseValid = false;
             try {
@@ -209,50 +211,47 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 defenseET.setTextColor(getResources().getColor(R.color.black));
             }
-            // Validate Level (Spinner)
+
             String selectedLevel = levelSpin.getSelectedItem().toString();
             if (selectedLevel.isEmpty()) {
-                // You may need to adjust this validation based on Spinner's values
                 isValid = false;
             }
-            // Validate Gender (Radio buttons)
+            
             int selectedGender = gender.getCheckedRadioButtonId();
             if (selectedGender == -1) {
                 isValid = false;
             }
+
+
+            ContentValues values = new ContentValues();
+            PokeDBProvider provider = new PokeDBProvider();
+            Uri uri = Uri.parse("com.example.assignment3sqldatabasecp/POKEDB");
+            //provider.query(uri,null,null, null);
+            boolean exists = true;
+
+            //check for duplicates
+            //for(){
+            //
+            //}
+            //if(exists!=true){
+            //    provider.insert(uri, values);
+            //}
+
+
             if (isValid) {
                 // Insert data into the database via ContentProvider
-                ContentValues values = new ContentValues();
+
                 values.put("National Number", nationalNumStr);
                 values.put("Name", name);
                 values.put("Species", speciesStr);
-                values.put("Gender", selectedGender); // Assuming you have this value
+                values.put("Gender", selectedGender);
                 values.put("Height", heightStr);
                 values.put("Weight", weightStr);
-                values.put("Level", selectedLevel); // Assuming you have this value
+                values.put("Level", selectedLevel);
                 values.put("HP", hpStr);
                 values.put("Attack", attackStr);
                 values.put("Defense", defenseStr);
-
-                // Create the content URI for your ContentProvider
-                Uri uri = Uri.parse("content://com.example.assignment3sqldatabasecp/POKEDB");
-
-                // Use the ContentResolver to insert the data
-                ContentResolver contentResolver = getContentResolver();
-                Uri insertedUri = contentResolver.insert(uri, values);
-
-                if (insertedUri != null) {
-                    // Data inserted successfully
-                    Toast.makeText(MainActivity.this, "Data inserted into the database.", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Handle insertion failure
-                    Toast.makeText(MainActivity.this, "Failed to insert data.", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                // Notify the user about errors via Toast
-                Toast.makeText(MainActivity.this, "Please fix the errors in red.", Toast.LENGTH_LONG).show();
-            }
-        }
+        }}
     };
     AdapterView.OnItemSelectedListener spinListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -270,9 +269,9 @@ public class MainActivity extends AppCompatActivity {
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             String input = charSequence.toString();
             if (!input.endsWith("kg")) {
-                input += "kg";
+                input += " kg";
                 weightET.setText(input);
-                weightET.setSelection(input.length());
+                weightET.setSelection(input.length()-3);
             }
         }
         @Override
@@ -287,16 +286,16 @@ public class MainActivity extends AppCompatActivity {
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             String input = charSequence.toString();
             if (!input.endsWith("m")) {
-                input += "m";
+                input += " m";
                 heightET.setText(input);
-                heightET.setSelection(input.length());
+                heightET.setSelection(input.length()-2);
             }
         }
         @Override
         public void afterTextChanged(Editable editable) {
         }
     };
-    //on create
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -328,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
         weightET.addTextChangedListener(weightWatcher);
         heightET.addTextChangedListener(heightWatcher);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.levelValues, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.levelValues, android.R.layout.simple_spinner_dropdown_item);
         levelSpin.setAdapter(adapter);
     }
 }
