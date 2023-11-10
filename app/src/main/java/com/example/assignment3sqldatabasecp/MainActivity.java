@@ -6,6 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.ContentResolver;
+import android.database.CharArrayBuffer;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,7 +18,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -28,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     Spinner levelSpin;
     EditText nationalET, nameET, speciesET, heightET, weightET, hpET, attackET, defenseET;
     int clicks = 0, contentV=0;
+    private ListView listView;
+    Cursor mCursor;
+    ContentValues newValues = new ContentValues();
 
     //listeners
     View.OnClickListener resetListener = new View.OnClickListener() {
@@ -50,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener colorsListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
                 ConstraintLayout mainPage;
                 mainPage = findViewById(contentV);
                 if(clicks == 3){
@@ -99,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     isValid = false;
                 } else {
                     nationalET.setTextColor(getResources().getColor(R.color.black));
+                    newValues.put(PokeDBProvider.COLUMN1_NAME, nationalNum);
                 }
                 //make sure the input is a number
             } catch (NumberFormatException e) {
@@ -109,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             // Validate Name
             String name = nameET.getText().toString();
             boolean isAlphabetical = true;
-
             if (name.isEmpty() || name.length() < 3 || name.length() > 12) {
                 isAlphabetical = false;
             } else {
@@ -126,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 nameET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN2_NAME, name);
             }
 
             String speciesStr = speciesET.getText().toString();
@@ -134,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 nationalET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN3_NAME, speciesStr);
             }
 
             String heightStr = heightET.getText().toString();
@@ -145,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 heightET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN5_NAME, heightStr);
             }
 
             String weightStr = weightET.getText().toString();
@@ -156,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 weightET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN6_NAME, weightStr);
             }
 
             String hpStr = hpET.getText().toString();
@@ -174,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 hpET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN8_NAME, hpStr);
             }
 
             String attackStr = attackET.getText().toString();
@@ -192,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 attackET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN9_NAME, attackStr);
             }
 
             String defenseStr = defenseET.getText().toString();
@@ -210,48 +224,23 @@ public class MainActivity extends AppCompatActivity {
                 isValid = false;
             } else {
                 defenseET.setTextColor(getResources().getColor(R.color.black));
+                newValues.put(PokeDBProvider.COLUMN10_NAME, defenseStr);
             }
 
             String selectedLevel = levelSpin.getSelectedItem().toString();
             if (selectedLevel.isEmpty()) {
                 isValid = false;
+            } else{
+                newValues.put(PokeDBProvider.COLUMN7_NAME, selectedLevel);
             }
             
             int selectedGender = gender.getCheckedRadioButtonId();
             if (selectedGender == -1) {
                 isValid = false;
+            }else {
+                newValues.put(PokeDBProvider.COLUMN4_NAME, selectedGender);
             }
-
-
-            ContentValues values = new ContentValues();
-            PokeDBProvider provider = new PokeDBProvider();
-            Uri uri = Uri.parse("com.example.assignment3sqldatabasecp/POKEDB");
-            //provider.query(uri,null,null, null);
-            boolean exists = true;
-
-            //check for duplicates
-            //for(){
-            //
-            //}
-            //if(exists!=true){
-            //    provider.insert(uri, values);
-            //}
-
-
-            if (isValid) {
-                // Insert data into the database via ContentProvider
-
-                values.put("National Number", nationalNumStr);
-                values.put("Name", name);
-                values.put("Species", speciesStr);
-                values.put("Gender", selectedGender);
-                values.put("Height", heightStr);
-                values.put("Weight", weightStr);
-                values.put("Level", selectedLevel);
-                values.put("HP", hpStr);
-                values.put("Attack", attackStr);
-                values.put("Defense", defenseStr);
-        }}
+            }
     };
     AdapterView.OnItemSelectedListener spinListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -300,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        contentV = R.id.mainPageC;
 
         reset = findViewById(R.id.resetButton);
         submit = findViewById(R.id.submitButton);
@@ -329,5 +319,9 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.levelValues, android.R.layout.simple_spinner_dropdown_item);
         levelSpin.setAdapter(adapter);
+
+
+
+
     }
 }
